@@ -13,3 +13,4 @@ env/
 Thumbs.db
 .vscode/
 *.zip
+test_images/
