@@ -3,6 +3,7 @@ import torch
 from torchvision import transforms
 from PIL import Image
 from source.model import build_model
+from source.gradcam import guided_gradcam, apply_heatmap
 
 st.set_page_config(
     page_title="BrainScan AI",
@@ -15,6 +16,7 @@ st.markdown("""
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
   .stApp { background: #0d0d0d; color: #e0e0e0; font-family: 'Inter', sans-serif; }
+  .block-container { padding-bottom: 4rem !important; }
 
   .header {
     text-align: center;
@@ -139,7 +141,8 @@ if "messages" not in st.session_state:
 if "analyzed" not in st.session_state:
     st.session_state.analyzed = False
 
-for msg in st.session_state.messages:
+# ── Render chat + inline images ──────────────────────────
+for i, msg in enumerate(st.session_state.messages):
     role_class   = "user" if msg["role"] == "user" else "bot"
     avatar       = "🧑" if msg["role"] == "user" else "🦕"
     bubble_class = f"bubble {msg.get('style', '')}"
@@ -150,6 +153,20 @@ for msg in st.session_state.messages:
     </div>
     """, unsafe_allow_html=True)
 
+    # Show images attached to this message
+    if "original" in msg:
+        if "heatmap" in msg:
+            _, c1, c2 = st.columns([1, 2, 2])
+            with c1:
+                st.image(msg["original"], caption="Original MRI", use_container_width=True)
+            with c2:
+                st.image(msg["heatmap"], caption="Grad-CAM Attention", use_container_width=True)
+        else:
+            _, c1, _ = st.columns([1, 2, 2])
+            with c1:
+                st.image(msg["original"], caption="Original MRI", use_container_width=True)
+
+# ── Upload form ──────────────────────────────────────────
 if not st.session_state.analyzed:
     with st.form("upload_form", clear_on_submit=False):
         uploaded = st.file_uploader("Upload MRI Scan", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
@@ -177,20 +194,30 @@ if launch and uploaded:
         with st.spinner("Analyzing..."):
             model = load_model()
             x = tf(img).unsqueeze(0).to(DEVICE)
+
+            # Run inference without grad first for probabilities
             with torch.no_grad():
                 probs = torch.softmax(model(x), dim=1)[0]
+            pred_idx = probs.argmax().item()
+
+            # Run Grad-CAM separately with grad enabled
+            x_grad = tf(img).unsqueeze(0).to(DEVICE).requires_grad_(True)
+            guided_cam, _ = guided_gradcam(model, x_grad, pred_idx)
+            heatmap_img = apply_heatmap(img, guided_cam)
+
         no_tumor_pct = probs[0].item() * 100
         tumor_pct    = probs[1].item() * 100
-        pred_idx     = probs.argmax().item()
 
         if pred_idx == 1:
             style = "danger"
             text  = f"⚠️ <b>Tumor Detected</b><br><br>The model identified signs of a brain tumor with <b>{tumor_pct:.1f}%</b> confidence. Please consult a medical professional."
+            bot_msg = {"role": "bot", "text": text, "style": style, "original": img, "heatmap": heatmap_img}
         else:
             style = "safe"
             text  = f"✅ <b>No Tumor Detected</b><br><br>No signs of a brain tumor were found. Confidence: <b>{no_tumor_pct:.1f}%</b>."
+            bot_msg = {"role": "bot", "text": text, "style": style, "original": img}
 
-        st.session_state.messages.append({"role": "bot", "text": text, "style": style})
+        st.session_state.messages.append(bot_msg)
         st.session_state.analyzed = True
         st.rerun()
 
