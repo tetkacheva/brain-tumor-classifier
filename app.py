@@ -201,7 +201,7 @@ if not st.session_state.analyzed:
         uploaded = st.file_uploader("Upload MRI Scan", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
         _, btn_col = st.columns([3, 1])
         with btn_col:
-            launch = st.form_submit_button("Launch", use_container_width=True)
+            launch = st.form_submit_button("☄️ Launch", use_container_width=True)
 else:
     uploaded = None
     launch = False
