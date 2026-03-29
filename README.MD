@@ -1,4 +1,4 @@
-## <img src="icons/brain.png" width="18"> Brain Scan AI
+# <img src="icons/brain.png" width="18"> Brain Scan AI
 #### Kent Hack Enough · 2026 
 ---
 ⚠️ This tool is made for the educational and demonstration purposes only. It is **not** a medical device and should not be used for clinical diagnosis. If you have any concerns, please contact a medical professional.
