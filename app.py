@@ -1,3 +1,5 @@
+import base64
+from pathlib import Path
 import streamlit as st
 import torch
 from torchvision import transforms
@@ -5,9 +7,31 @@ from PIL import Image
 from source.model import build_model
 from source.gradcam import guided_gradcam, apply_heatmap
 
+
+def img_to_b64(path: str) -> str:
+    p = Path(path)
+    if not p.exists():
+        return ""
+    return base64.b64encode(p.read_bytes()).decode()
+
+def img_tag(b64: str, size: str = "24px") -> str:
+    if not b64:
+        return ""
+    return f'<img src="data:image/png;base64,{b64}" style="width:{size};vertical-align:middle;">'
+
+BRAIN_B64  = img_to_b64("icons/brain.png")
+DINO_B64   = img_to_b64("icons/dinosaur.png")
+CLIP_B64   = img_to_b64("icons/clip.png")
+METEOR_B64 = img_to_b64("icons/meteor.png")
+
+BRAIN_IMG  = img_tag(BRAIN_B64, "28px")
+DINO_IMG   = img_tag(DINO_B64,  "120px")
+CLIP_IMG   = img_tag(CLIP_B64,  "16px")
+METEOR_IMG = img_tag(METEOR_B64, "20px")
+
 st.set_page_config(
     page_title="BrainScan AI",
-    page_icon="https://img.icons8.com/?size=100&id=RZ3Ux64yROj8&format=png&color=000000",
+    page_icon=f"data:image/png;base64,{BRAIN_B64}",
     layout="centered",
 )
 
@@ -26,7 +50,8 @@ st.markdown("""
   }
   .header h1 { font-size: 2rem; font-weight: 600; color: #fff; margin: 0 0 0.4rem 0; letter-spacing: 1px; }
   .header p  { color: #aaa; font-size: 0.95rem; margin: 0 0 1.2rem 0; }
-  .dino { font-size: 3.5rem; display: block; animation: float 3s ease-in-out infinite; }
+  .dino-header { display: block; animation: float 3s ease-in-out infinite; }
+  .dino-header img { width: 120px; }
   @keyframes float {
     0%, 100% { transform: translateY(0px); }
     50%       { transform: translateY(-8px); }
@@ -50,7 +75,7 @@ st.markdown("""
   [data-testid="stFileUploader"] { max-width: 340px; margin-left: auto; }
   [data-testid="stFileUploader"] section {
     background: #000 !important;
-    border: 2px dashed #ff6b00 !important;
+    border: 2px dashed #00c9b1 !important;
     border-radius: 12px !important;
     padding: 0.5rem 0.75rem !important;
   }
@@ -58,15 +83,15 @@ st.markdown("""
   [data-testid="stFileUploaderDropzoneInstructions"] div span { color: #e0e0e0 !important; }
   [data-testid="stFileUploaderDropzoneInstructions"] div small { color: #aaa !important; }
   [data-testid="stFileUploader"] section button {
-    background: #1a1a1a !important; color: #ff9900 !important;
-    border: 1px solid #ff6b00 !important; border-radius: 8px !important; padding: 0.4rem 1rem !important;
+    background: #0a1a1a !important; color: #00c9b1 !important;
+    border: 1px solid #00c9b1 !important; border-radius: 8px !important; padding: 0.4rem 1rem !important;
   }
   [data-testid="stFileUploader"] section button:hover {
-    background: #2a1500 !important; border-color: #ffcc00 !important; color: #ffcc00 !important;
+    background: #0a2a2a !important; border-color: #7b61ff !important; color: #7b61ff !important;
   }
   [data-testid="stFileUploaderFile"] {
     margin-top: 10px !important; background: #1a1a1a !important;
-    border: 1px solid #ff6b00 !important; border-radius: 8px !important; padding: 6px 10px !important;
+    border: 1px solid #00c9b1 !important; border-radius: 8px !important; padding: 6px 10px !important;
   }
   [data-testid="stFileUploaderFile"] * { color: #e0e0e0 !important; }
 
@@ -78,14 +103,14 @@ st.markdown("""
   [data-testid="stFormSubmitButton"] > button {
     width: 140px !important; min-width: 140px !important; max-width: 140px !important;
     margin-top: 8px;
-    background: linear-gradient(135deg, #1a0a00, #2a1500) !important;
-    color: #ff9900 !important; border: 1px solid #ff6b00 !important; border-radius: 12px !important;
+    background: linear-gradient(135deg, #001a1a, #0a2a2a) !important;
+    color: #00c9b1 !important; border: 1px solid #00c9b1 !important; border-radius: 12px !important;
     padding: 0.65rem 1rem !important; font-size: 1rem !important; font-weight: 600 !important;
     letter-spacing: 1px; transition: all 0.2s ease;
   }
   [data-testid="stFormSubmitButton"] > button:hover {
-    background: linear-gradient(135deg, #2a1500, #3a2000) !important;
-    box-shadow: 0 0 20px rgba(255,107,0,0.4) !important; border-color: #ffcc00 !important; color: #ffcc00 !important;
+    background: linear-gradient(135deg, #0a2a2a, #1a1a3a) !important;
+    box-shadow: 0 0 20px rgba(0,201,177,0.4) !important; border-color: #7b61ff !important; color: #7b61ff !important;
   }
 
   /* New scan button */
@@ -110,11 +135,11 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("""
+st.markdown(f"""
 <div class="header">
-  <h1>🧠 BrainScan AI</h1>
+  <h1>{BRAIN_IMG} BrainScan AI</h1>
   <p>Brain tumor detection from MRI scans · EfficientNet-B0</p>
-  <span class="dino">🦕</span>
+  <span class="dino-header">{DINO_IMG}</span>
 </div>
 """, unsafe_allow_html=True)
 
@@ -144,16 +169,19 @@ if "analyzed" not in st.session_state:
 # ── Render chat + inline images ──────────────────────────
 for i, msg in enumerate(st.session_state.messages):
     role_class   = "user" if msg["role"] == "user" else "bot"
-    avatar       = "🧑" if msg["role"] == "user" else "🦕"
+    avatar       = f'<img src="data:image/png;base64,{BRAIN_B64}" style="width:20px;">' if msg["role"] == "bot" else f'<img src="data:image/png;base64,{DINO_B64}" style="width:20px;">'
     bubble_class = f"bubble {msg.get('style', '')}"
+    text = msg["text"]
+    # replace clip emoji with icon in user messages
+    if msg["role"] == "user":
+        text = text.replace("📎", CLIP_IMG)
     st.markdown(f"""
     <div class="msg {role_class}">
       <div class="avatar">{avatar}</div>
-      <div class="{bubble_class}">{msg["text"]}</div>
+      <div class="{bubble_class}">{text}</div>
     </div>
     """, unsafe_allow_html=True)
 
-    # Show images attached to this message
     if "original" in msg:
         if "heatmap" in msg:
             _, c1, c2 = st.columns([1, 2, 2])
@@ -172,7 +200,7 @@ if not st.session_state.analyzed:
         uploaded = st.file_uploader("Upload MRI Scan", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
         _, btn_col = st.columns([3, 1])
         with btn_col:
-            launch = st.form_submit_button("☄️ Launch", use_container_width=True)
+            launch = st.form_submit_button("Launch", use_container_width=True)
 else:
     uploaded = None
     launch = False
@@ -186,7 +214,7 @@ if launch and uploaded:
     if st.session_state.messages[-1].get("file") != uploaded.name:
         st.session_state.messages.append({
             "role": "user",
-            "text": f"📎 <b>{uploaded.name}</b>",
+            "text": f'{CLIP_IMG} <b>{uploaded.name}</b>',
             "style": "",
             "file": uploaded.name
         })
@@ -194,13 +222,9 @@ if launch and uploaded:
         with st.spinner("Analyzing..."):
             model = load_model()
             x = tf(img).unsqueeze(0).to(DEVICE)
-
-            # Run inference without grad first for probabilities
             with torch.no_grad():
                 probs = torch.softmax(model(x), dim=1)[0]
             pred_idx = probs.argmax().item()
-
-            # Run Grad-CAM separately with grad enabled
             x_grad = tf(img).unsqueeze(0).to(DEVICE).requires_grad_(True)
             guided_cam, _ = guided_gradcam(model, x_grad, pred_idx)
             heatmap_img = apply_heatmap(img, guided_cam)
