@@ -31,6 +31,15 @@ BrainScan AI analyzes brain MRI scans and within seconds tells you the probabili
 | [Flaticon](https://www.flaticon.com/) | UI icons (brain, dinosaur, meteor, clip) |
 | [Claude (Anthropic)](https://claude.ai/logout) | AI coding assistant used during development |
 
+### Problems & Solutions
+#### Windows multiprocessing crash
+PyTorch's ```DataLoader``` with ```num_workers > 0``` causes a multiprocessing error on Windows. Fixed by setting ```num_workers=0```.
+#### Gradient flow error during Phase 1
+Freezing all layers and passing them to the optimizer caused a ```RuntimeError: element 0 of tensors does not require grad```. Fixed by explicitly setting ```requires_grad=True``` on the classifier head after freezing the backbone.
+#### Wrong dataset structure
+The first Kaggle dataset downloaded was a YOLOv8 object detection dataset with ```images/``` and ```labels/``` folders — incompatible with ```ImageFolder```. Switched to the correct binary classification dataset.
+#### Grad-CAM spatial imprecision
+With only 253 training images the heatmap doesn't always precisely localize the tumor. Attempted Guided Grad-CAM but gradients were too weak. Reverted to standard Grad-CAM. A larger dataset would improve spatial precision.
 
 ### Project Structure
 ```
