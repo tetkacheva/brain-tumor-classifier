@@ -3,6 +3,9 @@
 
 ⚠️ This tool is made for the educational and demonstration purposes only. It is **not** a medical device and should not be used for clinical diagnosis. If you have any concerns, please contact a medical professional.
 
+### Team
+Tatiana Tkacheva — solo project
+
 ### Inspiration
 At 18, I was diagnosed with *"You have something in your brain, but we don't know what it is."* It took 6 months of endless doctor appointments across different clinics to figure out what tumor I had. I was fortunate to have the resources to get opinions from the best neurosurgeons in Europe — but not everyone has that opportunity. That's where BrainScan AI comes in.
 
@@ -15,6 +18,19 @@ BrainScan AI analyzes brain MRI scans and within seconds tells you the probabili
 - Explainability: Grad-CAM heatmap overlay on detected tumor scans
 - UI: Chat-style Streamlit web app
 - Stack: PyTorch · Torchvision · Streamlit · OpenCV · Pillow
+
+### Tools & Frameworks
+| Tool | Purpose |
+|---|---|
+| [PyTorch](https://pytorch.org/) | Model training and inference | 
+| [Tourchvision](https://pytorch.org/vision/) | EfficientNet-B0 pretrained weights and transforms |
+| [Streamlit](https://streamlit.io/) | Web app UI |
+| [OpenCV](https://opencv.org/) | Grad-CAM heatmap generation |
+| [Pillow](https://python-pillow.org/) | Image processing |
+| [Kaggle Dataset](https://www.kaggle.com/datasets/navoneel/brain-mri-images-for-brain-tumor-detection) | Brain MRI images for tumor detection |
+| [Flaticon](https://www.flaticon.com/) | UI icons (brain, dinosaur, meteor, clip) |
+| [Claude (Anthropic)](https://claude.ai/logout) | AI coding assistant used during development |
+
 
 ### Project Structure
 ```
