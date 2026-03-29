@@ -120,15 +120,16 @@ st.markdown("""
     background: #1a1a1a !important; color: #aaa !important;
     border: 1px solid #333 !important; border-radius: 12px !important;
     padding: 0.65rem 1rem !important; font-size: 1rem !important;
+    font-weight: normal !important; letter-spacing: normal !important;
   }
-  div.stButton > button:hover { border-color: #ff6b00 !important; color: #ff9900 !important; }
+  div.stButton > button:hover { border-color: #00c9b1 !important; color: #00c9b1 !important; background: #1a1a1a !important; box-shadow: none !important; }
 
   /* Pinned footer */
   .footer {
-    position: fixed; bottom: 0; left: 0; width: 100%;
+    position: fixed !important; bottom: 0 !important; left: 0 !important; width: 100% !important;
     text-align: center; padding: 0.6rem 0;
     background: #0d0d0d; border-top: 1px solid #1f1f1f;
-    color: #aaa; font-size: 0.9rem; z-index: 999;
+    color: #aaa; font-size: 0.9rem; z-index: 9999 !important;
   }
 
   #MainMenu, footer, header { visibility: hidden; }
